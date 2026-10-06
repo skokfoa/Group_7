@@ -1,7 +1,9 @@
 __pycache__/
 json/
 not_using/
+.gitignore
+.DS_Store
 change.py
 input_output_json.py
 main.py
-ReadMe.md
+a.py
