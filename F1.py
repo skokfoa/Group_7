@@ -50,7 +50,7 @@ def InputCourse(Is_Change: bool):
         course_id = input("Enter course ID: ")
         if course_id in course_data["Course"]:
             print("Course ID already exists. Please enter a unique ID.")
-        return None
+            return None
     course_name = input("Enter course name: ")
     credit = int(input("Enter course credit: "))
     is_required = input("Is the course required? (True/False): ").lower()
