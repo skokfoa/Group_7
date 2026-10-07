@@ -1,6 +1,6 @@
 class Course:
-    def __init__(self, 
-                 course_id: int,
+    def __init__(self,
+                 course_id: str,  # 原為int，改為str  (23改)
                  course_name: str,
                  credit: int,
                  is_required: bool,
@@ -30,24 +30,28 @@ class Course:
 
     def output_json(self):
         return {
-            "course_id": self.course_id,
-            "course_name": self.course_name,
-            "credit": self.credit,
-            "is_required": self.is_required,
-            "instructor": self.instructor,
-            "students_limit": self.students_limit,
-            "classroom": self.classroom,
-            "schedule": self.schedule  # <--- 直接回傳原有的 dict，不要做列表推導式
+            "Course": {
+                self.course_id: {
+                    "course_name": self.course_name,
+                    "credit": self.credit,
+                    "is_required": self.is_required,
+                    "instructor": self.instructor,
+                    "students_limit": self.students_limit,
+                    "classroom": self.classroom,
+                    "schedule": self.schedule  # <--- 直接回傳原有的 dict，不要做列表推導式
+                }
+            }
         }
 
+
 class Student:
-    def __init__(self, 
-                 student_id: int, 
-                 name: str, 
-                 major: str, 
+    def __init__(self,
+                 student_id: str,  # 原為int，改為str (23改)
+                 name: str,
+                 major: str,
                  selected_courses: list[Course] | None = None,
                  credit: int = 0):
-        
+
         self.student_id = student_id
         self.name = name
         self.major = major
@@ -58,14 +62,16 @@ class Student:
         print(f"student_id: {self.student_id}, "
               f"name: {self.name}, "
               f"major: {self.major}, "
-              f"selected_courses: {[course.course_name if len(course.course_name) else 'N/A' for course in self.selected_courses]}, "
+              f"selected_courses: {self.selected_courses}, "
               f"credit: {self.credit}")
 
     def output_json(self):
         return {
-            "student_id": self.student_id,
-            "name": self.name,
-            "major": self.major,
-            "selected_courses": [course.course_name for course in self.selected_courses],
-            "credit": self.credit
+            "Student": {
+                self.student_id: {
+                    "name": self.name,
+                    "major": self.major,
+                    "selected_courses": [self.selected_courses],  
+                    "credit": self.credit}
+            }
         }

@@ -1,0 +1,22 @@
+{
+    "Student": {
+        "115590024": {
+            "name": "ming",
+            "major": "cs",
+            "selected_courses": [
+                ""
+            ],
+            "credit": 0
+        },
+        "115590023": {
+            "name": "so",
+            "major": "cs",
+            "selected_courses": [
+                [
+                    "math"
+                ]
+            ],
+            "credit": 0
+        }
+    }
+}

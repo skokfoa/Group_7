@@ -1,0 +1,39 @@
+{
+    "Course": {
+        "001": {
+            "course_name": "chinese2",
+            "credit": 2,
+            "is_required": "false",
+            "instructor": "JJ",
+            "students_limit": 80,
+            "classroom": "309",
+            "schedule": {
+                "'Monday'": [
+                    1,
+                    2
+                ],
+                "'Wednesday'": [
+                    3
+                ]
+            }
+        },
+        "002": {
+            "course_name": "math",
+            "credit": 3,
+            "is_required": "true",
+            "instructor": "wang",
+            "students_limit": 50,
+            "classroom": "326",
+            "schedule": {
+                "'Monday'": [
+                    1,
+                    2
+                ],
+                "'Wednesday'": [
+                    3,
+                    4
+                ]
+            }
+        }
+    }
+}
