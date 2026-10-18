@@ -5,6 +5,17 @@
 
 
 def period_to_number(text: str) -> int | None:
+    if len(text) != 1:
+        return None
+
+    if text in "123456789":
+        return int(text)
+    elif text.upper() in "ABC":
+        return ord(text.upper()) - ord('A') + 10
+    else:
+        return None
+
+
     """把節次文字轉成數字。
 
     參數：
@@ -41,6 +52,8 @@ def period_to_text(number: int) -> str:
 
 
 def is_valid_day(day: str) -> bool:
+    return True if day in "1234567" else False
+
     """檢查星期是否合法。
 
     參數：
@@ -59,6 +72,8 @@ def is_valid_day(day: str) -> bool:
 
 
 def is_valid_period(period: int) -> bool:
+    return True if 1 <= period <= 12 else False
+
     """檢查節次是否合法。
 
     參數：
