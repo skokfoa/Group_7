@@ -2,8 +2,23 @@
 只檢查、不修改資料；星期和節次的規則呼叫 time_rules。
 """
 
+import re
+
 from data_formats import Classroom, Course, Student
 import time_rules
+
+CODE_PATTERN = r"[A-Za-z]{2}[0-9]{3}"  # 課程、教室代號：2 個英文字母加 3 位數字，例如 CS101
+STUDENT_ID_PATTERN = r"S[0-9]{3}"  # 學號：S 加 3 位數字，例如 S001
+
+
+def _matches(pattern: str, text) -> bool:
+    """text 是字串，而且整串符合 pattern。"""
+    return isinstance(text, str) and re.fullmatch(pattern, text) is not None
+
+
+def _is_int(value) -> bool:
+    """value 是整數；True、False 不算。"""
+    return isinstance(value, int) and not isinstance(value, bool)
 
 
 def check_course(db: dict, course: Course, is_new: bool) -> list[str]:
@@ -32,7 +47,36 @@ def check_course(db: dict, course: Course, is_new: bool) -> list[str]:
 
     對應需求：F1-02、F1-03、F1-04、F1-05、資料格式
     """
-    raise NotImplementedError
+    errors = []
+    course_id = course.course_id
+
+    if not _matches(CODE_PATTERN, course_id):
+        errors.append(f"課程代號格式錯誤：{course_id}")
+    if is_new and course_id in db["courses"]:
+        errors.append(f"課程代號已存在：{course_id}")
+    if not is_new and course_id not in db["courses"]:
+        errors.append(f"找不到課程：{course_id}")
+
+    if not (_is_int(course.credit) and course.credit > 0):
+        errors.append(f"學分必須為正整數：{course.credit}")
+    if not (_is_int(course.students_limit) and course.students_limit >= 1):
+        errors.append(f"人數上限必須至少為 1：{course.students_limit}")
+    if course.classroom not in db["classrooms"]:
+        errors.append(f"找不到教室：{course.classroom}")
+
+    for day in course.schedule:
+        if not time_rules.is_valid_day(day):
+            errors.append(f"星期不合法：{day}")
+    for periods in course.schedule.values():
+        for period in periods:
+            if not time_rules.is_valid_period(period):
+                errors.append(f"節次不合法：{period}")
+
+    slot_count = sum(len(periods) for periods in course.schedule.values())
+    if slot_count == 0:
+        errors.append("至少要有一個上課時段")
+
+    return errors
 
 
 def check_student(db: dict, student: Student, is_new: bool) -> list[str]:
@@ -55,7 +99,17 @@ def check_student(db: dict, student: Student, is_new: bool) -> list[str]:
 
     對應需求：F1-02、F1-03
     """
-    raise NotImplementedError
+    errors = []
+    student_id = student.student_id
+
+    if not _matches(STUDENT_ID_PATTERN, student_id):
+        errors.append(f"學號格式錯誤：{student_id}")
+    if is_new and student_id in db["students"]:
+        errors.append(f"學號已存在：{student_id}")
+    if not is_new and student_id not in db["students"]:
+        errors.append(f"找不到學生：{student_id}")
+
+    return errors
 
 
 def check_classroom(db: dict, classroom: Classroom, is_new: bool) -> list[str]:
@@ -79,4 +133,17 @@ def check_classroom(db: dict, classroom: Classroom, is_new: bool) -> list[str]:
 
     對應需求：F1-02、F1-03、資料格式
     """
-    raise NotImplementedError
+    errors = []
+    classroom_id = classroom.classroom_id
+
+    if not _matches(CODE_PATTERN, classroom_id):
+        errors.append(f"教室代號格式錯誤：{classroom_id}")
+    if is_new and classroom_id in db["classrooms"]:
+        errors.append(f"教室代號已存在：{classroom_id}")
+    if not is_new and classroom_id not in db["classrooms"]:
+        errors.append(f"找不到教室：{classroom_id}")
+
+    if not (_is_int(classroom.capacity) and classroom.capacity >= 1):
+        errors.append(f"容量必須至少為 1：{classroom.capacity}")
+
+    return errors
