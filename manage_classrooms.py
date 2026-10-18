@@ -5,7 +5,7 @@
 
 from data_formats import Classroom
 import data_checks
-
+import save_load
 
 def add_classroom(db: dict, classroom: Classroom) -> list[str]:
     """新增一間教室；有錯誤時不新增。
@@ -23,7 +23,22 @@ def add_classroom(db: dict, classroom: Classroom) -> list[str]:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
+    Checked_Classroom = data_checks.check_classroom(db,classroom,is_new=True)
+    if len(Checked_Classroom) == 0:
+        New_Classroom = {
+            "classrooms":{
+                classroom.classroom_id:{
+                            "capacity":classroom.capacity,
+                            "equipment":classroom.equipment,
+                            "building":classroom.building
+                        }
+            }
+            
+        }
+        db["classrooms"]["classrooms"].update(New_Classroom["classrooms"])
+        save_load.save_data(db,"data")
+    return Checked_Classroom
+
 
 
 def update_classroom(db: dict, classroom: Classroom) -> list[str]:
@@ -42,7 +57,22 @@ def update_classroom(db: dict, classroom: Classroom) -> list[str]:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
+    Checked_Classroom = data_checks.check_classroom(db,classroom,is_new=False)
+    if len(Checked_Classroom) == 0:
+        New_Classroom = {
+            "classrooms":{
+                classroom.classroom_id:{
+                            "capacity":classroom.capacity,
+                            "equipment":classroom.equipment,
+                            "building":classroom.building
+                        }
+            }
+            
+        }
+        db["classrooms"]["classrooms"].update(New_Classroom["classrooms"])
+        save_load.save_data(db,"data")
+    return Checked_Classroom
+
 
 
 def delete_classroom(db: dict, classroom_id: str) -> list[str]:
@@ -63,7 +93,16 @@ def delete_classroom(db: dict, classroom_id: str) -> list[str]:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
+    if classroom_id not in db["classrooms"]["classrooms"]:
+        return [f"找不到教室：{classroom_id}"]
+    Course_List = list(db["courses"]["courses"].keys())
+    for course in Course_List:
+        if classroom_id in db["courses"]["courses"][course]["classroom"]:
+            return [f"{classroom_id} 還有課程使用，不能刪除"]
+    del db["classrooms"]["classrooms"][classroom_id]
+    save_load.save_data(db,"data")
+    return []
+
 
 
 def get_classroom(db: dict, classroom_id: str) -> Classroom | None:
@@ -82,4 +121,11 @@ def get_classroom(db: dict, classroom_id: str) -> Classroom | None:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
+    if classroom_id in db["classrooms"]["classrooms"]:
+        return Classroom(classroom_id,
+                         db["classrooms"]["classrooms"][classroom_id]["capacity"],
+                         db["classrooms"]["classrooms"][classroom_id]["equipment"],
+                         db["classrooms"]["classrooms"][classroom_id]["building"])
+    else:
+        return None
+

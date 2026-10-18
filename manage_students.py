@@ -4,9 +4,11 @@
 """
 
 from data_formats import Student
+import save_load
 import data_checks
 
-
+db = save_load.load_data("data")
+print(db)
 def add_student(db: dict, student: Student) -> list[str]:
     """新增一位學生；有錯誤時不新增。
 
@@ -23,7 +25,21 @@ def add_student(db: dict, student: Student) -> list[str]:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
+
+    Checked_Students = data_checks.check_student(db,student,True)
+    if len(Checked_Students) == 0:
+        Students = {
+            "students":{
+                student.student_id:{
+                    "student_name": student.name,
+                    "class": student.major,
+                    "credit_limit" : student.credit_limit
+                }
+            }
+        }
+        db["students"]["students"].update(Students["students"])
+        
+    return Checked_Students
 
 
 def update_student(db: dict, student: Student) -> list[str]:
@@ -42,8 +58,20 @@ def update_student(db: dict, student: Student) -> list[str]:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
-
+    Checked_Students = data_checks.check_student(db,student,False)
+    if len(Checked_Students) == 0:
+        Students = {
+            "students":{
+                student.student_id:{
+                    "student_name": student.name,
+                    "class": student.major,
+                    "credit_limit" : student.credit_limit
+                }
+            }
+        }
+        db["students"]["students"].update(Students["students"])
+        
+    return Checked_Students
 
 def delete_student(db: dict, student_id: str) -> list[str]:
     """刪除一位學生和他的所有選課紀錄。
@@ -61,7 +89,13 @@ def delete_student(db: dict, student_id: str) -> list[str]:
 
     對應需求：F1-01、F1-07
     """
-    raise NotImplementedError
+    if student_id not in db["students"]["students"]:
+        return [f"找不到學生：{student_id}"]
+    else:
+        del db["students"]["students"][student_id]
+            
+        return []
+
 
 
 def get_student(db: dict, student_id: str) -> Student | None:
@@ -80,4 +114,13 @@ def get_student(db: dict, student_id: str) -> Student | None:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
+    if student_id not in db["students"]["students"]:
+        return [f"找不到學生：{student_id}"]
+    else:
+        student = Student(student_id,
+                          db["students"]["students"][student_id]["student_name"],
+                          db["students"]["students"][student_id]["class"],
+                          db["students"]["students"][student_id]["credit_limit"])   
+        return student
+
+
