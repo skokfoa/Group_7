@@ -3,6 +3,9 @@
 全系統共用，之後其他功能或是函數都呼叫這裡。
 """
 
+# 節次文字照順序排，第 1 個是第 1 節，第 12 個是 c
+PERIOD_TEXTS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c"]
+
 
 def period_to_number(text: str) -> int | None:
     """把節次文字轉成數字。
@@ -19,7 +22,9 @@ def period_to_number(text: str) -> int | None:
 
     對應需求：F1-05
     """
-    raise NotImplementedError
+    if text in PERIOD_TEXTS:
+        return PERIOD_TEXTS.index(text) + 1
+    return None
 
 
 def period_to_text(number: int) -> str:
@@ -37,7 +42,7 @@ def period_to_text(number: int) -> str:
 
     對應需求：F1-05
     """
-    raise NotImplementedError
+    return PERIOD_TEXTS[number - 1]
 
 
 def is_valid_day(day: str) -> bool:
@@ -55,7 +60,7 @@ def is_valid_day(day: str) -> bool:
 
     對應需求：F1-05
     """
-    raise NotImplementedError
+    return day in ["1", "2", "3", "4", "5", "6", "7"]
 
 
 def is_valid_period(period: int) -> bool:
@@ -73,4 +78,4 @@ def is_valid_period(period: int) -> bool:
 
     對應需求：F1-05
     """
-    raise NotImplementedError
+    return period in range(1, 13)
