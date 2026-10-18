@@ -1,3 +1,11 @@
 {
-    "classrooms": {}
+    "classrooms": {
+        "EN201": {
+            "capacity": 60,
+            "equipment": [
+                "投影機"
+            ],
+            "building": "綜合科館"
+        }
+    }
 }

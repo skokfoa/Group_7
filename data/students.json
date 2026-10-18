@@ -1,3 +1,14 @@
 {
-    "students": {}
+    "students": {
+        "S001": {
+            "student_id":"S001",
+            "student_name": "王小",
+            "class": "資工一",
+            "credit_limit": 24
+        },
+        "S002":
+        {
+            
+        }
+    }
 }
