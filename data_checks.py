@@ -2,8 +2,6 @@
 只檢查、不修改資料；星期和節次的規則呼叫 time_rules。
 """
 
-import re
-
 from data_formats import Classroom, Course, Student
 import time_rules
 
@@ -36,38 +34,51 @@ def check_course(db: dict, course: Course, is_new: bool) -> list[str]:
     """
     errors = []
 
-    if not re.fullmatch(r"[A-Z]{2}[0-9]{3}", str(course.course_id)):
+    ok = True
+    if len(course.course_id) != 5:
+        ok = False
+    else:
+        for c in course.course_id[0:2]:
+            if c < "A" or c > "Z":
+                ok = False
+        for c in course.course_id[2:5]:
+            if c < "0" or c > "9":
+                ok = False
+    if not ok:
         errors.append(f"課程代號格式錯誤：{course.course_id}")
 
-    if is_new and course.course_id in db["courses"]:
-        errors.append(f"課程代號已存在：{course.course_id}")
-    if not is_new and course.course_id not in db["courses"]:
-        errors.append(f"找不到課程：{course.course_id}")
+    if is_new:
+        if course.course_id in db["courses"]:
+            errors.append(f"課程代號已存在：{course.course_id}")
+    else:
+        if course.course_id not in db["courses"]:
+            errors.append(f"找不到課程：{course.course_id}")
 
-    credit = course.credit
-    if not isinstance(credit, int) or isinstance(credit, bool) or credit <= 0:
-        errors.append(f"學分必須為正整數：{credit}")
+    if type(course.credit) != int or course.credit <= 0:
+        errors.append(f"學分必須為正整數：{course.credit}")
 
-    limit = course.students_limit
-    if not isinstance(limit, int) or isinstance(limit, bool) or limit < 1:
-        errors.append(f"人數上限必須至少為 1：{limit}")
+    if type(course.students_limit) != int or course.students_limit < 1:
+        errors.append(f"人數上限必須至少為 1：{course.students_limit}")
 
     if course.classroom not in db["classrooms"]:
         errors.append(f"找不到教室：{course.classroom}")
-
+ 
     for day in course.schedule:
-        if not isinstance(day, str) or not time_rules.is_valid_day(day):
+        if type(day) != str or not time_rules.is_valid_day(day):
             errors.append(f"星期不合法：{day}")
-
-    for periods in course.schedule.values():
-        for period in periods:
-            if (not isinstance(period, int) or isinstance(period, bool)
-                    or not time_rules.is_valid_period(period)):
+ 
+    for day in course.schedule:
+        for period in course.schedule[day]:
+            if type(period) != int or not time_rules.is_valid_period(period):
                 errors.append(f"節次不合法：{period}")
-
-    if not any(course.schedule.values()):
+ 
+    has_time = False
+    for day in course.schedule:
+        if len(course.schedule[day]) > 0:
+            has_time = True
+    if not has_time:
         errors.append("至少要有一個上課時段")
-
+ 
     return errors
 
 
@@ -92,15 +103,24 @@ def check_student(db: dict, student: Student, is_new: bool) -> list[str]:
     對應需求：F1-02、F1-03
     """
     errors = []
-
-    if not re.fullmatch(r"S[0-9]{3}", str(student.student_id)):
+ 
+    ok = True
+    if len(student.student_id) != 4 or student.student_id[0] != "S":
+        ok = False
+    else:
+        for c in student.student_id[1:4]:
+            if c < "0" or c > "9":
+                ok = False
+    if not ok:
         errors.append(f"學號格式錯誤：{student.student_id}")
-
-    if is_new and student.student_id in db["students"]:
-        errors.append(f"學號已存在：{student.student_id}")
-    if not is_new and student.student_id not in db["students"]:
-        errors.append(f"找不到學生：{student.student_id}")
-
+ 
+    if is_new:
+        if student.student_id in db["students"]:
+            errors.append(f"學號已存在：{student.student_id}")
+    else:
+        if student.student_id not in db["students"]:
+            errors.append(f"找不到學生：{student.student_id}")
+ 
     return errors
 
 
@@ -126,17 +146,28 @@ def check_classroom(db: dict, classroom: Classroom, is_new: bool) -> list[str]:
     對應需求：F1-02、F1-03、資料格式
     """
     errors = []
-
-    if not re.fullmatch(r"[A-Z]{2}[0-9]{3}", str(classroom.classroom_id)):
+ 
+    ok = True
+    if len(classroom.classroom_id) != 5:
+        ok = False
+    else:
+        for c in classroom.classroom_id[0:2]:
+            if c < "A" or c > "Z":
+                ok = False
+        for c in classroom.classroom_id[2:5]:
+            if c < "0" or c > "9":
+                ok = False
+    if not ok:
         errors.append(f"教室代號格式錯誤：{classroom.classroom_id}")
-
-    if is_new and classroom.classroom_id in db["classrooms"]:
-        errors.append(f"教室代號已存在：{classroom.classroom_id}")
-    if not is_new and classroom.classroom_id not in db["classrooms"]:
-        errors.append(f"找不到教室：{classroom.classroom_id}")
-
-    capacity = classroom.capacity
-    if not isinstance(capacity, int) or isinstance(capacity, bool) or capacity < 1:
-        errors.append(f"容量必須至少為 1：{capacity}")
-
+ 
+    if is_new:
+        if classroom.classroom_id in db["classrooms"]:
+            errors.append(f"教室代號已存在：{classroom.classroom_id}")
+    else:
+        if classroom.classroom_id not in db["classrooms"]:
+            errors.append(f"找不到教室：{classroom.classroom_id}")
+ 
+    if type(classroom.capacity) != int or classroom.capacity < 1:
+        errors.append(f"容量必須至少為 1：{classroom.capacity}")
+ 
     return errors
