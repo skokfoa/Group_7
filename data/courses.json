@@ -1,3 +1,186 @@
 {
-    "courses": {}
+    "courses": {
+        "CS101": {
+            "course_name": "計算機概論",
+            "credit": 3 ,
+            "is_required": true,
+            "instructor": "李老師",
+            "students_limit": 35,
+            "classroom": "AN101",
+            "schedule": {"1": [1, 2]}
+        },
+        "LS101": {
+            "course_name": "法律",
+            "credit": 3,
+            "is_required": true,
+            "instructor": "張老師",
+            "students_limit": 35,
+            "classroom": "AN201",
+            "schedule": {"1": [3, 4]}
+        },
+        "AS101": {
+            "course_name": "電磁學",
+            "credit": 2,
+            "is_required": true,
+            "instructor": "那老師",
+            "students_limit": 37,
+            "classroom": "NHD1027",
+            "schedule": {"1": [5]}
+        },
+        "KA101": {
+            "course_name": "樂團漫談",
+            "credit": 1,
+            "is_required": true,
+            "instructor": "處老師",
+            "students_limit": 15,
+            "classroom": "CN101",
+            "schedule": {"1": [6,7,8]}
+        },
+        "HI101": {
+            "course_name": "社會心貍學",
+            "credit": 2,
+            "is_required": true,
+            "instructor": "狸老師",
+            "students_limit": 35,
+            "classroom": "AN201",
+            "schedule": {"2": [4]}
+        },
+        "OS101": {
+            "course_name": "電子商務理論",
+            "credit": 2,
+            "is_required": true,
+            "instructor": "轉老師",
+            "students_limit": 20,
+            "classroom": "BN101",
+            "schedule": {"3": [9,10,11]}
+        },
+        "PS101": {
+            "course_name": "藝術欣賞",
+            "credit": 2,
+            "is_required": true,
+            "instructor": "琳老師",
+            "students_limit": 35,
+            "classroom": "AN201",
+            "schedule": {"4": [11,12]}
+        },
+        "WH101": {
+            "course_name": "翁星歷史學",
+            "credit": 1,
+            "is_required": true,
+            "instructor": "緹老師",
+            "students_limit": 15,
+            "classroom": "CN101",
+            "schedule": {"5": [1, 2]}
+        },
+        "KSKBL": {
+            "course_name": "電子競技概論",
+            "credit": 3,
+            "is_required": true,
+            "instructor": "歐老師",
+            "students_limit": 20,
+            "classroom": "BN101",
+            "schedule": {"5": [3,4]}
+        },
+        "EC101": {
+            "course_name": "微積分",
+            "credit": 2,
+            "is_required": true,
+            "instructor": "拉老師",
+            "students_limit": 37,
+            "classroom": "NHD1027",
+            "schedule": {"4": [1],"3":[1,2]}
+        },
+        "HS101": {
+            "course_name": "醫者仁心",
+            "credit": 1,
+            "is_required": true,
+            "instructor": "風老師",
+            "students_limit": 35,
+            "classroom": "AN201",
+            "schedule": {"1": [11,12]}
+        },
+        "FT101": {
+            "course_name": "烈陽哥的自我防衛概論",
+            "credit": 1,
+            "is_required": true,
+            "instructor": "白老師",
+            "students_limit": 20,
+            "classroom": "BN101",
+            "schedule": {"3": [3,4]}
+        },
+        "CP101": {
+            "course_name": "攝影學",
+            "credit": 2,
+            "is_required": true,
+            "instructor": "照老師",
+            "students_limit": 15,
+            "classroom": "CN101",
+            "schedule": {"3": [1,2]}
+        },
+        "HH101": {
+            "course_name": "阿哈的藝術欣賞",
+            "credit": 3,
+            "is_required": true,
+            "instructor": "二維馬老師",
+            "students_limit": 35,
+            "classroom": "AN101",
+            "schedule": {"4": [3,4]}
+        },
+        "FX100": {
+            "course_name": "投資理財概論",
+            "credit": 3,
+            "is_required": true,
+            "instructor": "韭老師",
+            "students_limit": 15,
+            "classroom": "CN101",
+            "schedule": {"2": [1,2,3]}
+        },
+        "BE101": {
+            "course_name": "博弈心理學",
+            "credit": 2,
+            "is_required": true,
+            "instructor": "砂老師",
+            "students_limit": 20,
+            "classroom": "BN101",
+            "schedule": {"2": [1,2,3]}
+        },
+        "MA101": {
+            "course_name": "玄學概論",
+            "credit": 2,
+            "is_required": true,
+            "instructor": "爻老師",
+            "students_limit": 35,
+            "classroom": "AN201",
+            "schedule": {"3": [5,6,7]}
+        },
+        "AD101": {
+            "course_name": "廣告心理學",
+            "credit": 3,
+            "is_required": true,
+            "instructor": "千老師",
+            "students_limit": 15,
+            "classroom": "CN101",
+            "schedule": {"1": [1,2]}
+        },
+        "PE101": {
+            "course_name": "專業英文",
+            "credit": 3,
+            "is_required": true,
+            "instructor": "菲老師",
+            "students_limit": 35,
+            "classroom": "AN201",
+            "schedule": {"2": [5,6,7]}
+        },
+        "LO101": {
+            "course_name": "愛情概論",
+            "credit": 3,
+            "is_required": true,
+            "instructor": "柳老師",
+            "students_limit": 20,
+            "classroom": "BN101",
+            "schedule": {"5": [5,6,7]}
+        }
+        
+        
+    }
 }
