@@ -1,32 +1,5 @@
 {
     "courses": {
-        "CS001": {
-            "course_name": "計算機概論",
-            "credit": 3,
-            "is_required": true,
-            "instructor": "李老師",
-            "students_limit": 60,
-            "classroom": "EN101",
-            "schedule": {
-                "2": [
-                    1,
-                    2
-                ]
-            }
-        },
-        "CS102": {
-            "course_name": "計概",
-            "credit": 3,
-            "is_required": false,
-            "instructor": "王老師",
-            "students_limit": 60,
-            "classroom": "EN101",
-            "schedule": {
-                "1": [
-                    1,
-                    2
-                ]
-            }
-        }
+        
     }
 }

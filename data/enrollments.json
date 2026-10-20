@@ -1,22 +1,5 @@
 {
-    "enrollments": {
-        "S001": {
-            "courses": [
-                "CS001",
-                "EN201"
-            ]
-        },
-        "S002": {
-            "courses": [
-                "CS001",
-                "EN202"
-            ]
-        },
-        "S003": {
-            "courses": [
-                "CS003",
-                "EN203"
-            ]
-        }
-    }
+    "enrollments": [
+
+    ]
 }

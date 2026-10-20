@@ -7,8 +7,7 @@ from data_formats import Student
 import save_load
 import data_checks
 
-db = save_load.load_data("data")
-print(db)
+
 def add_student(db: dict, student: Student) -> list[str]:
     """新增一位學生；有錯誤時不新增。
 
@@ -28,16 +27,7 @@ def add_student(db: dict, student: Student) -> list[str]:
 
     Checked_Students = data_checks.check_student(db,student,True)
     if len(Checked_Students) == 0:
-        Students = {
-            "students":{
-                student.student_id:{
-                    "student_name": student.name,
-                    "class": student.major,
-                    "credit_limit" : student.credit_limit
-                }
-            }
-        }
-        db["students"]["students"].update(Students["students"])
+        db["students"][student.student_id] = student
         
     return Checked_Students
 
@@ -60,17 +50,8 @@ def update_student(db: dict, student: Student) -> list[str]:
     """
     Checked_Students = data_checks.check_student(db,student,False)
     if len(Checked_Students) == 0:
-        Students = {
-            "students":{
-                student.student_id:{
-                    "student_name": student.name,
-                    "class": student.major,
-                    "credit_limit" : student.credit_limit
-                }
-            }
-        }
-        db["students"]["students"].update(Students["students"])
-        
+            db["students"][student.student_id] = student
+            
     return Checked_Students
 
 def delete_student(db: dict, student_id: str) -> list[str]:
@@ -89,11 +70,15 @@ def delete_student(db: dict, student_id: str) -> list[str]:
 
     對應需求：F1-01、F1-07
     """
-    if student_id not in db["students"]["students"]:
+    if student_id not in db["students"]:
         return [f"找不到學生：{student_id}"]
     else:
-        del db["students"]["students"][student_id]
-            
+        temp = db["enrollments"]
+        del db["students"][student_id]
+        for students in range(len(db["enrollments"])):
+            if student_id in db["enrollments"][students].student_id:
+                temp.remove(db["enrollments"][students])
+        db["enrollments"] = temp  
         return []
 
 
@@ -114,13 +99,19 @@ def get_student(db: dict, student_id: str) -> Student | None:
 
     對應需求：F1-01
     """
-    if student_id not in db["students"]["students"]:
-        return [f"找不到學生：{student_id}"]
+    if student_id not in db["students"]:
+        return None
     else:
-        student = Student(student_id,
-                          db["students"]["students"][student_id]["student_name"],
-                          db["students"]["students"][student_id]["class"],
-                          db["students"]["students"][student_id]["credit_limit"])   
+        try:
+            student = Student(student_id,
+                                name=db["students"][student_id].name,
+                                major=db["students"][student_id].major,
+                                credit_limit=db["students"][student_id].credit_limit)
+        except:
+            student = Student(student_id,
+                            name=db["students"][student_id]["name"],
+                            major=db["students"][student_id]["major"],
+                            credit_limit=db["students"][student_id]["credit_limit"])   
         return student
 
 

@@ -37,7 +37,7 @@ def check_course(db: dict, course: Course, is_new: bool) -> list[str]:
     for key in Schedule_List:
         for day in range(len(course.schedule[key])):
             if time_rules.period_to_number(str(course.schedule[key][day])) != None:
-                course.schedule[key][day] = time_rules.period_to_number(course.schedule[key][day])
+                course.schedule[key][day] = time_rules.period_to_number(str(course.schedule[key][day]))
     Error_List = []
     print(course.course_id[0],course.course_id[1],course.course_id[2:5])
     try:
@@ -47,10 +47,10 @@ def check_course(db: dict, course: Course, is_new: bool) -> list[str]:
     except:
         Error_List.append(f"課程代號格式錯誤：{course.course_id}")
     if is_new:
-        if course.course_id in db["courses"]["courses"]:
+        if course.course_id in db["courses"]:
             Error_List.append(f"課程代號已存在：{course.course_id}")
     else:
-        if course.course_id not in db["courses"]["courses"]:
+        if course.course_id not in db["courses"]:
             Error_List.append(f"找不到課程：{course.course_id}")
     try:
         if int(course.credit) < 0 :
@@ -59,7 +59,7 @@ def check_course(db: dict, course: Course, is_new: bool) -> list[str]:
         Error_List.append(f"學分必須為正整數：{course.credit}")
     if course.students_limit <= 0 :
         Error_List.append(f"人數上限必須至少為 1：{course.students_limit}")
-    if course.classroom not in db["classrooms"]["classrooms"] :
+    if course.classroom not in db["classrooms"] :
         Error_List.append(f"找不到教室：{course.classroom}")  
     for days in Schedule_List:
         if not time_rules.is_valid_day(days):
@@ -74,7 +74,6 @@ def check_course(db: dict, course: Course, is_new: bool) -> list[str]:
             except:
                 Error_List.append(f"節次不合法：{section}")
     return Error_List
-print(check_course(db, Course("CS102", "演算法", "abc", True, "王老師", 50, "EN201", {"s": ["b"]}), True))
 
 def check_student(db: dict, student: Student, is_new: bool) -> list[str]:
     """檢查一位學生，回傳所有錯誤。
@@ -103,9 +102,9 @@ def check_student(db: dict, student: Student, is_new: bool) -> list[str]:
             int(student.student_id[1:4])
         except:
             return [f"學號格式錯誤：{student.student_id}"]
-    if student.student_id in db["students"]["students"] and is_new:
+    if student.student_id in db["students"] and is_new:
         return [f"學號已存在：{student.student_id}"]
-    elif student.student_id not in db["students"]["students"] and not is_new:
+    elif student.student_id not in db["students"] and not is_new:
         return [f"找不到學生：{student.student_id}"]
     else :
         return []
@@ -141,10 +140,10 @@ def check_classroom(db: dict, classroom: Classroom, is_new: bool) -> list[str]:
     except:
         Error_List.append(f"教室代號格式錯誤{classroom.classroom_id}")
     if is_new:
-        if classroom.classroom_id in db["classrooms"]["classrooms"]:
+        if classroom.classroom_id in db["classrooms"]:
             Error_List.append(f"教室代號已存在：{classroom.classroom_id}")
     else:
-        if classroom.classroom_id not in db["classrooms"]["classrooms"]:
+        if classroom.classroom_id not in db["classrooms"]:
             Error_List.append(f"找不到教室：{classroom.classroom_id}") 
     if classroom.capacity <= 0 :
             Error_List.append(f"容量必須至少為 1：{classroom.capacity}")
