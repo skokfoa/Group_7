@@ -78,12 +78,11 @@ def delete_classroom(db: dict, classroom_id: str) -> list[str]:
     Course_List = list(db["courses"].keys())
     for course in Course_List:
         
-        if classroom_id in db["courses"][course]["classroom"]:
+        if classroom_id == db["courses"][course].classroom:
             return [f"{classroom_id} 還有課程使用，不能刪除"]
     del db["classrooms"][classroom_id]
     save_load.save_data(db,"data")
     return []
-
 
 
 def get_classroom(db: dict, classroom_id: str) -> Classroom | None:

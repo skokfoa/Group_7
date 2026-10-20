@@ -7,7 +7,6 @@ from data_formats import Student
 import save_load
 import data_checks
 
-
 def add_student(db: dict, student: Student) -> list[str]:
     """新增一位學生；有錯誤時不新增。
 
@@ -28,7 +27,7 @@ def add_student(db: dict, student: Student) -> list[str]:
     Checked_Students = data_checks.check_student(db,student,True)
     if len(Checked_Students) == 0:
         db["students"][student.student_id] = student
-        
+    save_load.save_data(db,"data")    
     return Checked_Students
 
 
@@ -73,14 +72,14 @@ def delete_student(db: dict, student_id: str) -> list[str]:
     if student_id not in db["students"]:
         return [f"找不到學生：{student_id}"]
     else:
-        temp = db["enrollments"]
         del db["students"][student_id]
+        temp = db["enrollments"]
         for students in range(len(db["enrollments"])):
             if student_id in db["enrollments"][students].student_id:
                 temp.remove(db["enrollments"][students])
-        db["enrollments"] = temp  
+            db["enrollments"] = temp  
+        save_load.save_data(db,"data")
         return []
-
 
 
 def get_student(db: dict, student_id: str) -> Student | None:

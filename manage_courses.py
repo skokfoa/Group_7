@@ -123,7 +123,7 @@ def cancel_course(db: dict, course_id: str) -> list[str]:
     for students in range(len(db["enrollments"])) :
         if course_id in db["enrollments"][students].course_id:
             db["enrollments"][students].course_id.remove(course_id)
-        
+    del db["courses"][course_id]    
     save_load.save_data(db,"data")
     return[]
     
@@ -208,24 +208,23 @@ def search_courses(
     Course_List = list(db["courses"].keys())
     Real_Course_List = list(db["courses"].keys())
     for Condition in Condition_List:
-        
         if Condition != None:
             for course in Course_List:
                 if Condition == day:
-                    if Condition not in db["courses"][course]["schedule"]:
+                    if Condition not in db["courses"][course].schedule:
                         try:
                             Real_Course_List.remove(course)
                         except:
                             ...
                 elif Condition == has_seats:
                     if Condition:
-                        if count_enrolled(db,course) >= db["courses"][course]["students_limit"]:
+                        if count_enrolled(db,course) >= db["courses"][course].students_limit:
                             try:
                                 Real_Course_List.remove(course)
                             except:
                                 ...
                     else:    
-                        if count_enrolled(db,course) < db["courses"][course]["students_limit"]:
+                        if count_enrolled(db,course) < db["courses"][course].students_limit:
                             try:
                                 Real_Course_List.remove(course)
                             except:
@@ -233,16 +232,17 @@ def search_courses(
                 elif Condition == course_id:
                     Real_Course_List = [course_id]
                 elif Condition == is_required :
-                    if Condition !=db["courses"][course][Compare_List[Condition_List.index(Condition)]]:
+                    print(Condition)
+                    if Condition != db["courses"][course].is_required:
                         try:
                             Real_Course_List.remove(course)
                         except:
                             ...
                 else:
-                    if Condition not in db["courses"][course][Compare_List[Condition_List.index(Condition)]]:
+                    if Condition != db["courses"][course].instructor:
                         try:
                             Real_Course_List.remove(course)
                         except:
                             ...
-    return []    
-    
+    return []
+
