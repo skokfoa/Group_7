@@ -24,7 +24,7 @@
             "is_required": true,
             "instructor": "那老師",
             "students_limit": 37,
-            "classroom": "DN1027",
+            "classroom": "DN101",
             "schedule": {"1": [5]}
         },
         "KA101": {
