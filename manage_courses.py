@@ -5,6 +5,8 @@
 
 from data_formats import Course
 import data_checks
+# 改：拿掉 import save_load，以及 add_course、update_course、delete_course、cancel_course 裡的 save_load.save_data(db,"data")。
+# 存檔由 main.py 負責，manage 只改 db；不然跑 pytest 會把測試用的資料寫進 data/。
 
 
 def add_course(db: dict, course: Course) -> list[str]:
@@ -116,6 +118,8 @@ def cancel_course(db: dict, course_id: str) -> list[str]:
     """
     if course_id not in db["courses"]:
         return [f"找不到課程：{course_id}"]
+    # 改：原本是 db["enrollments"][students].course_id.remove(course_id)，但 course_id 是字串，字串不能 remove。
+    # 改：照 delete_student 的寫法，先複製一份 temp，從 temp 刪掉整筆選課紀錄，全部跑完再放回去
     temp = db["enrollments"].copy()
     for students in range(len(db["enrollments"])) :
         if course_id in db["enrollments"][students].course_id:
@@ -200,20 +204,24 @@ def search_courses(
 
     對應需求：F1-09
     """
-    Compare_List = ["course_id","instructor",day,"is_required",has_seats]
+    # 改：Compare_List 全部改成名稱字串，用來分辨現在跑到哪一個條件
+    Compare_List = ["course_id","instructor","day","is_required","has_seats"]
     Condition_List = [course_id,instructor,day,is_required,has_seats]
     Course_List = list(db["courses"].keys())
     Real_Course_List = list(db["courses"].keys())
-    for Condition in Condition_List:
+    # 改：用編號跑，才能用 Compare_List[index] 知道 Condition 是哪一個條件
+    for index in range(len(Condition_List)):
+        Condition = Condition_List[index]
         if Condition != None:
             for course in Course_List:
-                if Condition == day:
+                # 改：以下都改成用名稱判斷是哪個條件。原本用值判斷（Condition == day），必修和有名額都是 True 時會分不出來
+                if Compare_List[index] == "day":
                     if Condition not in db["courses"][course].schedule:
                         try:
                             Real_Course_List.remove(course)
                         except:
                             ...
-                elif Condition == has_seats:
+                elif Compare_List[index] == "has_seats":
                     if Condition:
                         if count_enrolled(db,course) >= db["courses"][course].students_limit:
                             try:
@@ -226,10 +234,15 @@ def search_courses(
                                 Real_Course_List.remove(course)
                             except:
                                 ...                        
-                elif Condition == course_id:
-                    Real_Course_List = [course_id]
-                elif Condition == is_required :
-                    print(Condition)
+                elif Compare_List[index] == "course_id":
+                    # 改：原本是 Real_Course_List = [course_id]，課程不存在時會留下不存在的代號；改成跟其他條件一樣，把不符合的刪掉
+                    if Condition != course:
+                        try:
+                            Real_Course_List.remove(course)
+                        except:
+                            ...
+                elif Compare_List[index] == "is_required":
+                    # 改：拿掉 print(Condition)，manage 不 print
                     if Condition != db["courses"][course].is_required:
                         try:
                             Real_Course_List.remove(course)
@@ -241,5 +254,9 @@ def search_courses(
                             Real_Course_List.remove(course)
                         except:
                             ...
-    return []
+    # 改：原本是 return []，篩完的結果沒有回傳。照 docstring 回傳 Course，並依課程代號排序
+    Result_List = []
+    for course in sorted(Real_Course_List):
+        Result_List.append(db["courses"][course])
+    return Result_List
 

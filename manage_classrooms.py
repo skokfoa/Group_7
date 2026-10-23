@@ -5,6 +5,8 @@
 
 from data_formats import Classroom
 import data_checks
+# 改：拿掉 import save_load，以及 add_classroom、update_classroom、delete_classroom 裡的 save_load.save_data(db,"data")。
+# 存檔由 main.py 負責，manage 只改 db；不然跑 pytest 會把測試用的資料寫進 data/。
 
 def add_classroom(db: dict, classroom: Classroom) -> list[str]:
     """新增一間教室；有錯誤時不新增。
