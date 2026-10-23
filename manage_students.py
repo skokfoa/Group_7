@@ -6,7 +6,6 @@
 from data_formats import Student
 import data_checks
 
-
 def add_student(db: dict, student: Student) -> list[str]:
     """新增一位學生；有錯誤時不新增。
 
@@ -23,7 +22,11 @@ def add_student(db: dict, student: Student) -> list[str]:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
+
+    Checked_Students = data_checks.check_student(db,student,True)
+    if len(Checked_Students) == 0:
+        db["students"][student.student_id] = student
+    return Checked_Students
 
 
 def update_student(db: dict, student: Student) -> list[str]:
@@ -42,8 +45,11 @@ def update_student(db: dict, student: Student) -> list[str]:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
-
+    Checked_Students = data_checks.check_student(db,student,False)
+    if len(Checked_Students) == 0:
+            db["students"][student.student_id] = student
+            
+    return Checked_Students
 
 def delete_student(db: dict, student_id: str) -> list[str]:
     """刪除一位學生和他的所有選課紀錄。
@@ -61,7 +67,16 @@ def delete_student(db: dict, student_id: str) -> list[str]:
 
     對應需求：F1-01、F1-07
     """
-    raise NotImplementedError
+    if student_id not in db["students"]:
+        return [f"找不到學生：{student_id}"]
+    else:
+        del db["students"][student_id]
+        temp = db["enrollments"].copy()
+        for students in range(len(db["enrollments"])):
+            if student_id in db["enrollments"][students].student_id:
+                temp.remove(db["enrollments"][students])
+        db["enrollments"] = temp  
+        return []
 
 
 def get_student(db: dict, student_id: str) -> Student | None:
@@ -80,4 +95,19 @@ def get_student(db: dict, student_id: str) -> Student | None:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
+    if student_id not in db["students"]:
+        return None
+    else:
+        try:
+            student = Student(student_id,
+                                name=db["students"][student_id].name,
+                                major=db["students"][student_id].major,
+                                credit_limit=db["students"][student_id].credit_limit)
+        except:
+            student = Student(student_id,
+                            name=db["students"][student_id]["name"],
+                            major=db["students"][student_id]["major"],
+                            credit_limit=db["students"][student_id]["credit_limit"])   
+        return student
+
+

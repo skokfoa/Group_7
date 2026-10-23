@@ -23,8 +23,10 @@ def add_course(db: dict, course: Course) -> list[str]:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
-
+    Checked_Course = data_checks.check_course(db,course,True)
+    if len(Checked_Course) == 0:
+            db["courses"][course.course_id] = course
+    return  Checked_Course
 
 def update_course(db: dict, course: Course) -> list[str]:
     """修改一門課程，用新資料取代同代號的舊資料；有錯誤時不修改。
@@ -42,8 +44,31 @@ def update_course(db: dict, course: Course) -> list[str]:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
+    Checked_Course = data_checks.check_course(db,course,False)
+    if len(Checked_Course) == 0:
+        db["courses"][course.course_id] = course
+    return  Checked_Course
 
+def count_enrolled(db: dict, course_id: str) -> int:
+    """計算一門課程目前的選課人數。
+
+    參數：
+        db：全部資料
+        course_id：課程代號
+
+    回傳：
+        選課人數
+
+    例子（CS102 有 2 人選）：
+        count_enrolled(db, "CS102") → 2
+
+    對應需求：F1-09
+    """
+    Chose_Students = 0
+    for students in range(len(db["enrollments"])) :
+        if course_id in db["enrollments"][students].course_id:
+            Chose_Students += 1
+    return Chose_Students
 
 def delete_course(db: dict, course_id: str) -> list[str]:
     """刪除一門課程；已有學生選修時不刪除。
@@ -63,7 +88,14 @@ def delete_course(db: dict, course_id: str) -> list[str]:
 
     對應需求：F1-01、F1-06
     """
-    raise NotImplementedError
+    if course_id not in db["courses"]:
+        return [f"找不到課程：{course_id}"]
+    if count_enrolled(db,course_id) == 0:
+        del db["courses"][course_id]
+        return []
+    else:
+        return [f"{course_id} 已有學生選修，請改用取消課程"]
+
 
 
 def cancel_course(db: dict, course_id: str) -> list[str]:
@@ -82,7 +114,19 @@ def cancel_course(db: dict, course_id: str) -> list[str]:
 
     對應需求：F1-06
     """
-    raise NotImplementedError
+    if course_id not in db["courses"]:
+        return [f"找不到課程：{course_id}"]
+    temp = db["enrollments"].copy()
+    for students in range(len(db["enrollments"])) :
+        if course_id in db["enrollments"][students].course_id:
+            temp.remove(db["enrollments"][students])
+    db["enrollments"] = temp
+    del db["courses"][course_id]    
+    return[]
+    
+
+
+
 
 
 def get_course(db: dict, course_id: str) -> Course | None:
@@ -101,25 +145,32 @@ def get_course(db: dict, course_id: str) -> Course | None:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
+    if course_id not in db["courses"]:
+        return None
+    try:
+        Course_data = Course(course_id,
+                        db["courses"][course_id].course_name,
+                        db["courses"][course_id].credit,
+                        db["courses"][course_id].is_required,
+                        db["courses"][course_id].instructor,
+                        db["courses"][course_id].students_limit,
+                        db["courses"][course_id].classroom,
+                        db["courses"][course_id].schedule
+                        )
+    except:
+        Course_data = Course(course_id,
+                            db["courses"][course_id]["course_name"],
+                            db["courses"][course_id]["credit"],
+                            db["courses"][course_id]["is_required"],
+                            db["courses"][course_id]["instructor"],
+                            db["courses"][course_id]["students_limit"],
+                            db["courses"][course_id]["classroom"],
+                            db["courses"][course_id]["schedule"]
+                            )
+    return Course_data
 
 
-def count_enrolled(db: dict, course_id: str) -> int:
-    """計算一門課程目前的選課人數。
 
-    參數：
-        db：全部資料
-        course_id：課程代號
-
-    回傳：
-        選課人數
-
-    例子（CS102 有 2 人選）：
-        count_enrolled(db, "CS102") → 2
-
-    對應需求：F1-09
-    """
-    raise NotImplementedError
 
 
 def search_courses(
@@ -149,4 +200,46 @@ def search_courses(
 
     對應需求：F1-09
     """
-    raise NotImplementedError
+    Compare_List = ["course_id","instructor",day,"is_required",has_seats]
+    Condition_List = [course_id,instructor,day,is_required,has_seats]
+    Course_List = list(db["courses"].keys())
+    Real_Course_List = list(db["courses"].keys())
+    for Condition in Condition_List:
+        if Condition != None:
+            for course in Course_List:
+                if Condition == day:
+                    if Condition not in db["courses"][course].schedule:
+                        try:
+                            Real_Course_List.remove(course)
+                        except:
+                            ...
+                elif Condition == has_seats:
+                    if Condition:
+                        if count_enrolled(db,course) >= db["courses"][course].students_limit:
+                            try:
+                                Real_Course_List.remove(course)
+                            except:
+                                ...
+                    else:    
+                        if count_enrolled(db,course) < db["courses"][course].students_limit:
+                            try:
+                                Real_Course_List.remove(course)
+                            except:
+                                ...                        
+                elif Condition == course_id:
+                    Real_Course_List = [course_id]
+                elif Condition == is_required :
+                    print(Condition)
+                    if Condition != db["courses"][course].is_required:
+                        try:
+                            Real_Course_List.remove(course)
+                        except:
+                            ...
+                else:
+                    if Condition != db["courses"][course].instructor:
+                        try:
+                            Real_Course_List.remove(course)
+                        except:
+                            ...
+    return []
+
