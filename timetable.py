@@ -21,7 +21,16 @@ def build_timetable(courses: list[Course]) -> list[list[str]]:
 
     對應需求：F3
     """
-    raise NotImplementedError
+    table=[]
+    for day in range(7):
+        table.append([])
+        for period in range(12):
+            table[day].append("")
+    for course in courses :
+        for day,periods in course.schedule.items():
+            for period in periods :
+                table[int(day)-1][period-1] = course.course_id
+    return table
 
 
 def search_timetable(
@@ -47,6 +56,13 @@ def search_timetable(
 
     對應需求：F3
     """
+    results=[]
+    for day_index in range(7):
+        for period_index in range(12):
+            if table[day_index][period_index] != "" :
+                if ((day is None or day == str(day_index + 1)) and (period is None or period == period_index+1) and (course_id is None or table[day_index][period_index] == course_id)):
+                    results.append((str(day_index + 1),(period_index + 1),table[day_index][period_index]))
+    return results
     raise NotImplementedError
 
 
@@ -68,6 +84,22 @@ def find_free_slots(table: list[list[str]], days: list[str], first: int, last: i
 
     對應需求：F3
     """
+    results = []
+    for day in days :
+        count = 0
+        start = None
+        for period in range(first,last+1):
+            if table[int(day)-1][period-1] == "":
+                if count == 0:
+                    start = period
+                count = count + 1
+            else :
+                if count == length:
+                    results.append((day,start,period-1))
+                count = 0
+        if period >=length :
+            results.append((day,start,last)) 
+    return results
     raise NotImplementedError
 
 
@@ -86,4 +118,35 @@ def timetable_stats(courses: list[Course]) -> dict:
 
     對應需求：F3
     """
+    credits=0
+    daily ={
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+    }
+    gaps = 0
+    table = build_timetable(courses)
+    for course in courses :
+        credits = credits + course.credit
+        for day , periods in course.schedule.items():
+            daily[day] = daily[day] + len(periods)
+    for day_table in table :
+        occupied_periods=[]
+        for period_index in range(12):
+            if day_table[period_index] != "":
+                occupied_periods.append(period_index+1)
+        if len(occupied_periods) > 0:
+            first_period = occupied_periods[0]
+            last_period = occupied_periods[-1]
+            gaps = gaps + (last_period-first_period+1-len(occupied_periods))
+    return{
+           "daily": daily,
+            "credits": credits,
+            "gaps": gaps
+ 
+    }
     raise NotImplementedError
