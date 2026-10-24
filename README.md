@@ -19,10 +19,12 @@ python -m pytest tests/test_time_rules.py   # 只測一個模組
 | `main.py` | 選單、輸入輸出；啟動時載入資料，修改後存檔 | — |
 | `data_formats.py` | 課程、學生、教室、選課紀錄的欄位，以及空的 db | 資料格式 |
 | `data_checks.py` | 檢查資料是否符合規則，一次回報所有錯誤 | F1-02～F1-05 |
-| `time_rules.py` | 節次轉換、星期和節次是否合法 | F1-05 |
+| `time_rules.py` | 節次轉換、星期和節次是否合法、時段是否重疊 | F1-05、F2-01、F2-03 |
 | `manage_courses.py` | 課程的新增、修改、刪除、取消、查詢 | F1-01、F1-06、F1-09 |
 | `manage_students.py` | 學生的新增、修改、刪除、查詢 | F1-01、F1-07 |
 | `manage_classrooms.py` | 教室的新增、修改、刪除、查詢 | F1-01 |
+| `enroll.py` | 加選、退選，學生已選的課程和學分 | F2 |
+| `timetable.py` | 個人課表、查詢、連續空堂、統計 | F3 |
 | `save_load.py` | `data/` 的 JSON 檔和 db 互相轉換 | F6 |
 | `data/` | 資料檔 | — |
 | `tests/` | 自動化測試，檔名 `test_模組名稱.py` | — |
