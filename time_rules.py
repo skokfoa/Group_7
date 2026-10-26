@@ -102,7 +102,7 @@ def day_to_text(day: str) -> str:
 
     對應需求：F2-06
     """
-    raise NotImplementedError
+    return "星期" + "一二三四五六日"[int(day) - 1]
 
 
 def slot_text(day: str, periods: list[int]) -> str:
@@ -121,7 +121,10 @@ def slot_text(day: str, periods: list[int]) -> str:
 
     對應需求：F2-06
     """
-    raise NotImplementedError
+    texts = []
+    for period in periods:
+        texts.append(period_to_text(period))
+    return day_to_text(day) + "第 " + "、".join(texts) + " 節"
 
 
 def find_conflicts(schedule_a: dict[str, list[int]], schedule_b: dict[str, list[int]]) -> dict[str, list[int]]:
@@ -139,4 +142,14 @@ def find_conflicts(schedule_a: dict[str, list[int]], schedule_b: dict[str, list[
 
     對應需求：F2-01、F2-03
     """
-    raise NotImplementedError
+    conflicts = {}
+    for day in sorted(schedule_a):
+        if day not in schedule_b:
+            continue
+        same = []
+        for period in sorted(schedule_a[day]):
+            if period in schedule_b[day]:
+                same.append(period)
+        if same:
+            conflicts[day] = same
+    return conflicts
