@@ -1,8 +1,8 @@
-"""資料檢查：檢查課程、學生、教室資料是否符合規則，一次回報所有錯誤。
+"""資料檢查：檢查課程、學生、教室、活動資料是否符合規則，一次回報所有錯誤。
 只檢查、不修改資料；星期和節次的規則呼叫 time_rules。
 """
 
-from data_formats import Classroom, Course, Student
+from data_formats import Activity, Classroom, Course, Student
 import time_rules
 
 
@@ -32,7 +32,54 @@ def check_course(db: dict, course: Course, is_new: bool) -> list[str]:
 
     對應需求：F1-02、F1-03、F1-04、F1-05、資料格式
     """
-    raise NotImplementedError
+    errors = []
+
+    ok = True
+    if len(course.course_id) != 5:
+        ok = False
+    else:
+        for c in course.course_id[0:2]:
+            if c < "A" or c > "Z":
+                ok = False
+        for c in course.course_id[2:5]:
+            if c < "0" or c > "9":
+                ok = False
+    if not ok:
+        errors.append(f"課程代號格式錯誤：{course.course_id}")
+
+    if is_new:
+        if course.course_id in db["courses"]:
+            errors.append(f"課程代號已存在：{course.course_id}")
+    else:
+        if course.course_id not in db["courses"]:
+            errors.append(f"找不到課程：{course.course_id}")
+
+    if type(course.credit) != int or course.credit <= 0:
+        errors.append(f"學分必須為正整數：{course.credit}")
+
+    if type(course.students_limit) != int or course.students_limit < 1:
+        errors.append(f"人數上限必須至少為 1：{course.students_limit}")
+
+    if course.classroom not in db["classrooms"]:
+        errors.append(f"找不到教室：{course.classroom}")
+ 
+    for day in course.schedule:
+        if type(day) != str or not time_rules.is_valid_day(day):
+            errors.append(f"星期不合法：{day}")
+ 
+    for day in course.schedule:
+        for period in course.schedule[day]:
+            if type(period) != int or not time_rules.is_valid_period(period):
+                errors.append(f"節次不合法：{period}")
+ 
+    has_time = False
+    for day in course.schedule:
+        if len(course.schedule[day]) > 0:
+            has_time = True
+    if not has_time:
+        errors.append("至少要有一個上課時段")
+ 
+    return errors
 
 
 def check_student(db: dict, student: Student, is_new: bool) -> list[str]:
@@ -55,7 +102,26 @@ def check_student(db: dict, student: Student, is_new: bool) -> list[str]:
 
     對應需求：F1-02、F1-03
     """
-    raise NotImplementedError
+    errors = []
+ 
+    ok = True
+    if len(student.student_id) != 4 or student.student_id[0] != "S":
+        ok = False
+    else:
+        for c in student.student_id[1:4]:
+            if c < "0" or c > "9":
+                ok = False
+    if not ok:
+        errors.append(f"學號格式錯誤：{student.student_id}")
+ 
+    if is_new:
+        if student.student_id in db["students"]:
+            errors.append(f"學號已存在：{student.student_id}")
+    else:
+        if student.student_id not in db["students"]:
+            errors.append(f"找不到學生：{student.student_id}")
+ 
+    return errors
 
 
 def check_classroom(db: dict, classroom: Classroom, is_new: bool) -> list[str]:
@@ -78,5 +144,58 @@ def check_classroom(db: dict, classroom: Classroom, is_new: bool) -> list[str]:
         check_classroom(db, Classroom("EN201", 0, [], "綜合科館"), True) → ["教室代號已存在：EN201", "容量必須至少為 1：0"]
 
     對應需求：F1-02、F1-03、資料格式
+    """
+    errors = []
+ 
+    ok = True
+    if len(classroom.classroom_id) != 5:
+        ok = False
+    else:
+        for c in classroom.classroom_id[0:2]:
+            if c < "A" or c > "Z":
+                ok = False
+        for c in classroom.classroom_id[2:5]:
+            if c < "0" or c > "9":
+                ok = False
+    if not ok:
+        errors.append(f"教室代號格式錯誤：{classroom.classroom_id}")
+ 
+    if is_new:
+        if classroom.classroom_id in db["classrooms"]:
+            errors.append(f"教室代號已存在：{classroom.classroom_id}")
+    else:
+        if classroom.classroom_id not in db["classrooms"]:
+            errors.append(f"找不到教室：{classroom.classroom_id}")
+ 
+    if type(classroom.capacity) != int or classroom.capacity < 1:
+        errors.append(f"容量必須至少為 1：{classroom.capacity}")
+ 
+    return errors
+
+
+def check_activity(db: dict, activity: Activity, is_new: bool) -> list[str]:
+    """檢查一項活動的資料，回傳所有錯誤。教室合不合用另外由 manage_activities.classroom_problems 檢查。
+
+    參數：
+        db：全部資料
+        activity：要檢查的活動
+        is_new：True 是新增，False 是修改
+
+    回傳：
+        錯誤清單，沒有錯誤時是 []。依下列順序檢查：
+            活動代號是 A 加 3 位數字 → "活動代號格式錯誤：{活動代號}"
+            新增時活動代號不能已存在 → "活動代號已存在：{活動代號}"
+            修改時活動代號必須存在 → "找不到活動：{活動代號}"
+            日期是 YYYY-MM-DD，而且是存在的日期 → "日期不合法：{日期}"
+            開始、結束時間是 HH:MM，都在 08:10～20:00 之間，且開始早於結束 → "活動時間不合法：{開始時間}～{結束時間}"
+            預計人數至少為 1 → "預計人數必須至少為 1：{預計人數}"
+            活動類型是講座、社團、讀書會、比賽、其他之一 → "活動類型不合法：{活動類型}"
+            教室必須存在 → "找不到教室：{教室}"
+
+    例子（db 裡已有教室 EN201、活動 A001）：
+        check_activity(db, Activity("A002", "程式設計讀書會", "2026-11-05", "18:30", "20:00", 20, "讀書會", ["投影機"], "EN201"), True) → []
+        check_activity(db, Activity("A001", "期中說明會", "2026-11-31", "21:00", "22:00", 0, "講座", [], "EN201"), True) → ["活動代號已存在：A001", "日期不合法：2026-11-31", "活動時間不合法：21:00～22:00", "預計人數必須至少為 1：0"]
+
+    對應需求：F4-02、F4-03、F4-04
     """
     raise NotImplementedError

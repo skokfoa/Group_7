@@ -1,3 +1,24 @@
 {
-    "enrollments": []
+    "enrollments": 
+    [{"student_id": "S001","course_id": "FX100"},
+     {"student_id": "S002","course_id": "FX100"},
+     {"student_id": "S003","course_id": "FX100"},
+     {"student_id": "S004","course_id": "FX100"},
+     {"student_id": "S005","course_id": "FX100"},
+     {"student_id": "S006","course_id": "FX100"},
+     {"student_id": "S007","course_id": "FX100"},
+     {"student_id": "S008","course_id": "FX100"},
+     {"student_id": "S009","course_id": "FX100"},
+     {"student_id": "S010","course_id": "FX100"},
+     {"student_id": "S011","course_id": "FX100"},
+     {"student_id": "S012","course_id": "FX100"},
+     {"student_id": "S013","course_id": "FX100"},
+     {"student_id": "S014","course_id": "FX100"},
+     {"student_id": "S015","course_id": "FX100"},
+     {"student_id": "S001","course_id": "KS101"},
+     {"student_id": "S002","course_id": "LS101"},
+     {"student_id": "S003","course_id": "AS101"},
+     {"student_id": "S004","course_id": "KA101"},
+     {"student_id": "S005","course_id": "CS101"}
+    ]
 }

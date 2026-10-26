@@ -5,7 +5,8 @@
 
 from data_formats import Classroom
 import data_checks
-
+# 改：拿掉 import save_load，以及 add_classroom、update_classroom、delete_classroom 裡的 save_load.save_data(db,"data")。
+# 存檔由 main.py 負責，manage 只改 db；不然跑 pytest 會把測試用的資料寫進 data/。
 
 def add_classroom(db: dict, classroom: Classroom) -> list[str]:
     """新增一間教室；有錯誤時不新增。
@@ -23,7 +24,11 @@ def add_classroom(db: dict, classroom: Classroom) -> list[str]:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
+    Checked_Classroom = data_checks.check_classroom(db,classroom,is_new=True)
+    if len(Checked_Classroom) == 0:
+        db["classrooms"][classroom.classroom_id]=classroom
+    return Checked_Classroom
+
 
 
 def update_classroom(db: dict, classroom: Classroom) -> list[str]:
@@ -42,7 +47,11 @@ def update_classroom(db: dict, classroom: Classroom) -> list[str]:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
+    Checked_Classroom = data_checks.check_classroom(db,classroom,is_new=False)
+    if len(Checked_Classroom) == 0:
+        db["classrooms"][classroom.classroom_id]=classroom
+    return Checked_Classroom
+
 
 
 def delete_classroom(db: dict, classroom_id: str) -> list[str]:
@@ -63,7 +72,15 @@ def delete_classroom(db: dict, classroom_id: str) -> list[str]:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
+    if classroom_id not in db["classrooms"]:
+        return [f"找不到教室：{classroom_id}"]
+    Course_List = list(db["courses"].keys())
+    for course in Course_List:
+        
+        if classroom_id == db["courses"][course].classroom:
+            return [f"{classroom_id} 還有課程使用，不能刪除"]
+    del db["classrooms"][classroom_id]
+    return []
 
 
 def get_classroom(db: dict, classroom_id: str) -> Classroom | None:
@@ -82,4 +99,11 @@ def get_classroom(db: dict, classroom_id: str) -> Classroom | None:
 
     對應需求：F1-01
     """
-    raise NotImplementedError
+    if classroom_id in db["classrooms"]:
+        return Classroom(classroom_id,
+                         db["classrooms"][classroom_id].capacity,
+                         db["classrooms"][classroom_id].equipment,
+                         db["classrooms"][classroom_id].building)
+    else:
+        return None
+

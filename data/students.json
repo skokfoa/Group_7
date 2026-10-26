@@ -1,3 +1,19 @@
 {
-    "students": {}
+    "students": {
+        "S001": {"name":"王小桃","major":"資工一","credit_limit":24},
+        "S002": {"name":"錢多多","major":"金融一","credit_limit":24},
+        "S003": {"name":"柳如煙","major":"資工一","credit_limit":24},
+        "S004": {"name":"斯科特","major":"資工一","credit_limit":24},
+        "S005": {"name":"趙相機","major":"互動一","credit_limit":24},
+        "S006": {"name":"花火火","major":"互動一","credit_limit":24},
+        "S007": {"name":"幻太子","major":"光電一","credit_limit":24},
+        "S008": {"name":"沈先生","major":"資工一","credit_limit":24},
+        "S009": {"name":"李嫊裳","major":"建築一","credit_limit":24},
+        "S010": {"name":"陳千羽","major":"建築一","credit_limit":24},
+        "S011": {"name":"蘇玉琳","major":"日文一","credit_limit":24},
+        "S012": {"name":"商轉轉","major":"資處一","credit_limit":24},
+        "S013": {"name":"朱小鈺","major":"資工一","credit_limit":24},
+        "S014": {"name":"陸小林","major":"資工一","credit_limit":24},
+        "S015": {"name":"芯柒日","major":"資工一","credit_limit":24}
+    }
 }

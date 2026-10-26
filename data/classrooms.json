@@ -1,3 +1,9 @@
 {
-    "classrooms": {}
+    "classrooms": {
+        "AN101": {"capacity": 35,"equipment":["冷氣","投影機","螢幕","電腦","麥克風","課桌椅"],"building":"A教大樓"},
+        "AN201": {"capacity": 35,"equipment":["冷氣","投影機","螢幕","電腦","麥克風","課桌椅"],"building":"A教大樓"},
+        "BN101": {"capacity": 20,"equipment":["冷氣","投影機","螢幕","電腦","麥克風","課桌椅"],"building":"群玉閣"},
+        "CN101": {"capacity": 15,"equipment":["冷氣","投影機","螢幕","電腦","麥克風","課桌椅"],"building":"天守閣"},
+        "DN101": {"capacity": 37,"equipment":["冷氣","投影機","螢幕","電腦","麥克風","課桌椅"],"building":"淨善宮"}
+    }
 }

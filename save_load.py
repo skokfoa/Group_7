@@ -7,7 +7,7 @@ import data_formats
 
 
 def load_data(data_dir: str) -> dict:
-    """讀取 data_dir 裡的資料，組成 db。
+    """讀取 data_dir 裡的 courses.json、students.json、classrooms.json、enrollments.json，組成 db。
 
     參數：
         data_dir：資料夾路徑，例如 "data"
@@ -32,6 +32,7 @@ def load_data(data_dir: str) -> dict:
             **course_info
         )
         db["courses"][course_id] = course
+
     student_path = Path(data_dir) / "students.json"
     with open(student_path, encoding="utf-8") as file:
         student_data = json.load(file)
@@ -42,6 +43,7 @@ def load_data(data_dir: str) -> dict:
             **student_info
         )
         db["students"][student_id] = student
+
     classroom_path = Path(data_dir) / "classrooms.json"
     with open(classroom_path, encoding="utf-8") as file:
         classroom_data = json.load(file)
@@ -61,6 +63,8 @@ def load_data(data_dir: str) -> dict:
         enrollment = data_formats.Enrollment(**enrollment_info)
         db["enrollments"].append(enrollment)
     return db
+
+
 def save_data(db: dict, data_dir: str) -> None:
     """把 db 寫進 data_dir 的四個 JSON 檔。
 
