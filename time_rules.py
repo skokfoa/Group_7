@@ -5,17 +5,6 @@
 
 
 def period_to_number(text: str) -> int | None:
-    if len(text) != 1:
-        return None
-
-    if text in "123456789":
-        return int(text)
-    elif text.upper() in "ABC":
-        return ord(text.upper()) - ord('A') + 10
-    else:
-        return None
-
-
     """把節次文字轉成數字。
 
     參數：
@@ -30,7 +19,15 @@ def period_to_number(text: str) -> int | None:
 
     對應需求：F1-05
     """
-    raise NotImplementedError
+    if len(text) != 1:
+        return None
+
+    if text in "123456789":
+        return int(text)
+    elif text.upper() in "ABC":
+        return ord(text.upper()) - ord('A') + 10
+    else:
+        return None
 
 
 def period_to_text(number: int) -> str:
@@ -48,12 +45,13 @@ def period_to_text(number: int) -> str:
 
     對應需求：F1-05
     """
-    raise NotImplementedError
+    if number <= 9:
+        return str(number)
+    else:
+        return "abc"[number - 10]
 
 
 def is_valid_day(day: str) -> bool:
-    return True if day in "1234567" else False
-
     """檢查星期是否合法。
 
     參數：
@@ -68,12 +66,10 @@ def is_valid_day(day: str) -> bool:
 
     對應需求：F1-05
     """
-    raise NotImplementedError
+    return True if len(day) == 1 and day in "1234567" else False
 
 
 def is_valid_period(period: int) -> bool:
-    return True if 1 <= period <= 12 else False
-
     """檢查節次是否合法。
 
     參數：
@@ -88,7 +84,7 @@ def is_valid_period(period: int) -> bool:
 
     對應需求：F1-05
     """
-    raise NotImplementedError
+    return True if 1 <= period <= 12 else False
 
 
 def day_to_text(day: str) -> str:
@@ -106,7 +102,7 @@ def day_to_text(day: str) -> str:
 
     對應需求：F2-06
     """
-    raise NotImplementedError
+    return "星期" + "一二三四五六日"[int(day) - 1]
 
 
 def slot_text(day: str, periods: list[int]) -> str:
@@ -125,7 +121,10 @@ def slot_text(day: str, periods: list[int]) -> str:
 
     對應需求：F2-06
     """
-    raise NotImplementedError
+    texts = []
+    for period in periods:
+        texts.append(period_to_text(period))
+    return day_to_text(day) + "第 " + "、".join(texts) + " 節"
 
 
 def find_conflicts(schedule_a: dict[str, list[int]], schedule_b: dict[str, list[int]]) -> dict[str, list[int]]:
@@ -143,4 +142,14 @@ def find_conflicts(schedule_a: dict[str, list[int]], schedule_b: dict[str, list[
 
     對應需求：F2-01、F2-03
     """
-    raise NotImplementedError
+    conflicts = {}
+    for day in sorted(schedule_a):
+        if day not in schedule_b:
+            continue
+        same = []
+        for period in sorted(schedule_a[day]):
+            if period in schedule_b[day]:
+                same.append(period)
+        if same:
+            conflicts[day] = same
+    return conflicts
