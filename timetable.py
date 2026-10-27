@@ -94,10 +94,10 @@ def find_free_slots(table: list[list[str]], days: list[str], first: int, last: i
                     start = period
                 count = count + 1
             else :
-                if count == length:
+                if count >= length:
                     results.append((day,start,period-1))
                 count = 0
-        if period >=length :
+        if count >=length :
             results.append((day,start,last)) 
     return results
     raise NotImplementedError
