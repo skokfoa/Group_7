@@ -1,23 +1,24 @@
 """
-個人課表：把課程排成星期一到日 × 12 節的課表，查詢、找連續空堂、統計。
-只用傳進來的課程清單，不讀 db、不 print。
+個人課表：把課程和活動排成星期一到日 × 12 節的課表，查詢、找連續空堂、統計。
+只用傳進來的課程、活動清單，不讀 db、不 print。
 """
 
-from data_formats import Course
+from data_formats import Activity, Course
 
 
-def build_timetable(courses: list[Course]) -> list[list[str]]:
-    """把課程排成 7 × 12 的課表。
+def build_timetable(courses: list[Course], activities: list[Activity] | None = None) -> list[list[str]]:
+    """把課程和活動排成 7 × 12 的課表。
 
     參數：
         courses：課程清單
+        activities：活動清單，沒給時當作沒有活動；活動放在它那天是星期幾的位置，時段用 manage_activities.activity_schedule 換算
 
     回傳：
-        table[星期 - 1][節次 - 1] 是那一格的課程代號，沒課是 ""；共 7 列（星期一到日）、每列 12 格（第 1～12 節）
+        table[星期 - 1][節次 - 1] 是那一格的課程代號或活動代號，沒課是 ""；共 7 列（星期一到日）、每列 12 格（第 1～12 節）
 
     例子：
         build_timetable([Course("CS101", ..., {"1": [1, 2]})])[0][:3] → ["CS101", "CS101", ""]
-        build_timetable([]) → 7 列，每列 12 個 ""
+        build_timetable([], [Activity("A002", ..., "2026-11-05", "18:30", "20:00", ...)])[3][10:] → ["A002", "A002"]
 
     對應需求：F3
     """
