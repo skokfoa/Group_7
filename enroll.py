@@ -74,6 +74,7 @@ def add_enrollment(db: dict, student_id: str, course_id: str) -> list[str]:
         其他條件全部檢查完才回報，時段衝突在前、依星期和節次排序：
             和已選課程重疊 → "衝堂：{時段}，已選課程 {課程代號} {課程名稱}"
             同教室同時段已有別的課 → "教室衝堂：{時段}，{教室} 已有 {課程代號} {課程名稱}"
+            和已報名的活動重疊 → "衝堂：{時段}，已報名活動 {活動代號} {活動名稱}"
             加選後超過學分上限 → "學分超過上限：加選後 {學分} 學分，上限 {學分上限}"
             課程額滿 → "課程已額滿：{目前人數}/{人數上限}"
         {時段} 用 time_rules.slot_text 產生，例如 "星期二第 3、4 節"。
@@ -82,7 +83,7 @@ def add_enrollment(db: dict, student_id: str, course_id: str) -> list[str]:
         add_enrollment(db, "S001", "CS101") → []
         add_enrollment(db, "S001", "CS102") → ["衝堂：星期二第 3、4 節，已選課程 MA101 微積分", "課程已額滿：50/50"]
 
-    對應需求：F2-01、F2-03、F2-04、F2-05、F2-06、F2-07
+    對應需求：F2-01、F2-02、F2-03、F2-04、F2-05、F2-06、F2-07
     """
     errors = []
     if student_id not in db["students"]:

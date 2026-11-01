@@ -7,16 +7,19 @@ import data_formats
 
 
 def load_data(data_dir: str) -> dict:
-    """讀取 data_dir 裡的 courses.json、students.json、classrooms.json、enrollments.json，組成 db。
+    """讀取 data_dir 裡的六個 JSON 檔，組成 db。
 
     參數：
         data_dir：資料夾路徑，例如 "data"
 
     回傳：
-        db
+        db。檔案不存在時當作沒有資料。
+        單筆資料欄位不對（少了、多了或打錯欄位）時跳過那一筆，其他照常載入；
+        選課、報名紀錄指到不存在的學生、課程或活動時也跳過。
 
     例子：
         db = load_data("data")
+        courses.json 裡有一門課少了 credit → 那門課不載入，其他課程照常載入
 
     對應需求：F6
     """
@@ -66,7 +69,7 @@ def load_data(data_dir: str) -> dict:
 
 
 def save_data(db: dict, data_dir: str) -> None:
-    """把 db 寫進 data_dir 的四個 JSON 檔。
+    """把 db 寫進 data_dir 的六個 JSON 檔。
 
     參數：
         db：全部資料

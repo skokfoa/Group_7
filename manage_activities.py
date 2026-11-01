@@ -3,6 +3,8 @@
 新增、修改前用 data_checks 檢查；時段比對用 time_rules；不 print、不讀寫檔案。
 """
 
+from datetime import datetime
+
 from data_formats import Activity, Classroom, Signup
 import data_checks
 import time_rules
@@ -27,7 +29,20 @@ def activity_schedule(date: str, start_time: str, end_time: str) -> dict[str, li
 
     對應需求：F4-05
     """
-    raise NotImplementedError
+    day = str(datetime.strptime(date, "%Y-%m-%d").isoweekday())
+    start = int(start_time[0:2]) * 60 + int(start_time[3:5])
+    end = int(end_time[0:2]) * 60 + int(end_time[3:5])
+
+    periods = []
+    for period in range(1, 13):
+        period_start = (period + 7) * 60 + 10  # 第 1 節 08:10 開始，每節晚一小時
+        period_end = period_start + 50
+        if start < period_end and period_start < end:
+            periods.append(period)
+
+    if not periods:
+        return {}
+    return {day: periods}
 
 
 def add_activity(db: dict, activity: Activity) -> list[str]:
@@ -108,24 +123,18 @@ def get_activity(db: dict, activity_id: str) -> Activity | None:
     raise NotImplementedError
 
 
-def search_activities(
-    db: dict,
-    date: str | None = None,
-    activity_type: str | None = None,
-) -> list[Activity]:
-    """依條件查詢活動；沒給的條件不篩選。
+def list_activities(db: dict) -> list[Activity]:
+    """列出所有活動。
 
     參數：
         db：全部資料
-        date：日期，例如 "2026-11-05"
-        activity_type：活動類型，例如 "講座"
 
     回傳：
-        符合所有條件的活動清單，依日期、開始時間排序
+        活動清單，依日期、開始時間排序；沒有活動時是 []
 
-    例子：
-        search_activities(db, date="2026-11-05") → 11/5 的所有活動
-        search_activities(db, activity_type="講座") → 所有講座
+    例子（有 A001 11/7、A002 11/5 兩項活動）：
+        list_activities(db) → [Activity("A002", ...), Activity("A001", ...)]
+        list_activities(empty_db()) → []
 
     對應需求：F4-01
     """
@@ -195,7 +204,11 @@ def count_signups(db: dict, activity_id: str) -> int:
 
     對應需求：F4-08
     """
-    raise NotImplementedError
+    count = 0
+    for signup in db["signups"]:
+        if signup.activity_id == activity_id:
+            count += 1
+    return count
 
 
 def signed_up_activities(db: dict, student_id: str) -> list[Activity]:
@@ -214,7 +227,11 @@ def signed_up_activities(db: dict, student_id: str) -> list[Activity]:
 
     對應需求：F2-02、F3、F4-08
     """
-    raise NotImplementedError
+    result = []
+    for signup in db["signups"]:
+        if signup.student_id == student_id:
+            result.append(db["activities"][signup.activity_id])
+    return sorted(result, key=lambda a: (a.date, a.start_time))
 
 
 def sign_up(db: dict, student_id: str, activity_id: str) -> list[str]:
