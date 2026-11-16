@@ -63,6 +63,14 @@ def add_activity(db: dict, activity: Activity) -> list[str]:
 
     對應需求：F4-01、F4-06
     """
+    errors = data_checks.check_activity(db,activity,True)
+    if errors != []:
+        return errors
+    problems = classroom_problems(db, activity, activity.classroom)
+    if problems != []:
+        return problems
+    db["activities"][activity.activity_id] = activity
+    return []
     raise NotImplementedError
 
 
@@ -82,6 +90,14 @@ def update_activity(db: dict, activity: Activity) -> list[str]:
 
     對應需求：F4-01、F4-06
     """
+    errors = data_checks.check_activity(db, activity, False)
+    if errors != []:
+        return errors
+    problems = classroom_problems(db, activity, activity.classroom)
+    if problems != []:
+        return problems
+    db["activities"][activity.activity_id] = activity
+    return []
     raise NotImplementedError
 
 
@@ -101,6 +117,15 @@ def cancel_activity(db: dict, activity_id: str) -> list[str]:
 
     對應需求：F4-01
     """
+    remaining_signups=[]
+    if activity_id not in db['activities']:
+        return [f'找不到活動：{activity_id}']
+    for signup in db['signups']:
+        if signup.activity_id != activity_id:
+            remaining_signups.append(signup)
+    db['signups'] = remaining_signups
+    del db['activities'][activity_id]
+    return []
     raise NotImplementedError
 
 
@@ -120,6 +145,9 @@ def get_activity(db: dict, activity_id: str) -> Activity | None:
 
     對應需求：F4-01
     """
+    if activity_id in db['activities']:
+        return db["activities"][activity_id]
+    return None
     raise NotImplementedError
 
 
@@ -138,6 +166,8 @@ def list_activities(db: dict) -> list[Activity]:
 
     對應需求：F4-01
     """
+    activities=list(db['activities'].values())
+    return sorted(activities,key=lambda a : (a.date,a.start_time))
     raise NotImplementedError
 
 
@@ -166,6 +196,37 @@ def classroom_problems(db: dict, activity: Activity, classroom_id: str) -> list[
 
     對應需求：F4-06
     """
+    errors = []
+    classroom = db['classrooms'][classroom_id]
+    if classroom.capacity < activity.people_limit:
+        errors.append(f"容量不足：{classroom_id} 可坐 {classroom.capacity} 人，活動預計 {activity.people_limit} 人")
+    missing_equipment = []
+    for equipment in activity.equipment:
+        if equipment not in classroom.equipment:
+            missing_equipment.append(equipment)
+    if missing_equipment:
+        errors.append(f'缺少設備：{classroom_id} 沒有 {"、".join(missing_equipment)}')
+    schedule = activity_schedule(activity.date, activity.start_time, activity.end_time)
+    for course in db['courses'].values():
+        if course.classroom == classroom_id:
+            conflicts = time_rules.find_conflicts(schedule,course.schedule)
+            if conflicts:
+                for day,periods in conflicts.items():
+                    slot = time_rules.slot_text(day, periods)
+                    errors.append(f"教室衝堂：{slot}，{classroom_id} 已有課程 {course.course_id} {course.course_name}") 
+    
+    for other_activity in db["activities"].values():      
+        if other_activity.classroom == classroom_id:
+           if other_activity.date == activity.date:
+               if other_activity.activity_id != activity.activity_id:
+                other_schedule = activity_schedule(other_activity.date,other_activity.start_time,other_activity.end_time)       
+                conflicts = time_rules.find_conflicts(schedule, other_schedule)
+                if conflicts:
+                    for day, periods in conflicts.items():
+                        slot = time_rules.slot_text(day, periods)
+                        errors.append(f"教室衝堂：{slot}，{classroom_id} 已有活動 {other_activity.activity_id} {other_activity.activity_name}")
+    return errors
+
     raise NotImplementedError
 
 
@@ -186,6 +247,12 @@ def find_classrooms(db: dict, activity: Activity) -> list[Classroom]:
 
     對應需求：F4-07
     """
+    result = []
+    for classroom in db["classrooms"].values():
+        problems = classroom_problems(db,activity,classroom.classroom_id)
+        if problems == []:
+            result.append(classroom)
+    return sorted(result , key=lambda a:a.classroom_id)
     raise NotImplementedError
 
 
@@ -260,4 +327,44 @@ def sign_up(db: dict, student_id: str, activity_id: str) -> list[str]:
 
     對應需求：F4-08
     """
+    errors = []
+    conflicts_errors = []
+    if student_id not in db['students']:
+        errors.append(f"找不到學生：{student_id}")
+    if activity_id not in db['activities']:
+        errors.append(f"找不到活動：{activity_id}")
+    if errors != []:
+        return errors
+    activity = db["activities"][activity_id]
+    for signup in db["signups"]:
+        if signup.student_id == student_id and signup.activity_id == activity_id:
+            return [f"已報名這項活動：{activity_id}"]
+    schedule = activity_schedule(activity.date,activity.start_time,activity.end_time)
+    for enrollment in db['enrollments']:
+        if student_id == enrollment.student_id:
+            course = db["courses"][enrollment.course_id]
+            conflicts = time_rules.find_conflicts(schedule, course.schedule)
+            if conflicts:
+                for day,periods in conflicts.items():
+                    slot = time_rules.slot_text(day, periods)
+                    conflicts_errors.append((periods[0],f"衝堂：{slot}，已選課程 {course.course_id} {course.course_name}"))
+    activities = signed_up_activities(db, student_id) 
+    for other_activity in activities:
+        other_schedule = activity_schedule(other_activity.date,other_activity.start_time,other_activity.end_time)
+        if other_activity.date == activity.date:
+            conflicts = time_rules.find_conflicts(schedule, other_schedule)
+            if conflicts:
+                for day, periods in conflicts.items():
+                    slot = time_rules.slot_text(day,periods)
+                    conflicts_errors.append((periods[0],f"衝堂：{slot}，已報名活動 {other_activity.activity_id} {other_activity.activity_name}"))
+    conflicts_errors = sorted(conflicts_errors, key=lambda x: x[0])
+    for error in conflicts_errors:
+        errors.append(error[1])
+    counts = count_signups(db,activity_id)
+    if counts >= activity.people_limit :
+        errors.append(f"活動已額滿：{counts}/{activity.people_limit}")
+    if errors != []:
+        return errors
+    db["signups"].append(Signup(student_id, activity_id))
+    return []
     raise NotImplementedError
