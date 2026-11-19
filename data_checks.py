@@ -198,4 +198,94 @@ def check_activity(db: dict, activity: Activity, is_new: bool) -> list[str]:
 
     對應需求：F4-02、F4-03、F4-04
     """
-    raise NotImplementedError
+    errors = []
+
+    ok = True
+    if len(activity.activity_id) != 4 or activity.activity_id[0] != "A":
+        ok = False
+    else:
+        for char in activity.activity_id[1:4]:
+            if char < "0" or char > "9":
+                ok = False
+    if not ok:
+        errors.append(f"活動代號格式錯誤：{activity.activity_id}")
+
+    if is_new:
+        if activity.activity_id in db["activities"]:
+            errors.append(f"活動代號已存在：{activity.activity_id}")
+    else:
+        if activity.activity_id not in db["activities"]:
+            errors.append(f"找不到活動：{activity.activity_id}")
+
+    ok = True
+    try:
+        if len(activity.date) != 10:
+            ok = False
+        elif activity.date[4] != "-" or activity.date[7] != "-":
+            ok = False
+        else:
+            for position in range(0, 10):
+                if position == 4 or position == 7: continue
+                if activity.date[position] < "0" or activity.date[position] > "9":
+                    ok = False
+
+        if ok:
+            year = int(activity.date[0:4])
+            month = int(activity.date[5:7])
+            day = int(activity.date[8:10])
+            month_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+            if year % 400 == 0 or (year % 4 == 0 and year % 100 != 0):
+                month_days[1] = 29
+
+            if year < 1 or month < 1 or month > 12:
+                ok = False
+            elif day < 1 or day > month_days[month - 1]:
+                ok = False
+    except:
+        ok = False
+
+    if not ok:
+        errors.append(f"日期不合法：{activity.date}")
+
+    ok = True
+    try:
+        if len(activity.start_time) != 5 or len(activity.end_time) != 5:
+            ok = False
+        elif activity.start_time[2] != ":" or activity.end_time[2] != ":":
+            ok = False
+        else:
+            start_hour = int(activity.start_time[0:2])
+            start_minute = int(activity.start_time[3:5])
+            end_hour = int(activity.end_time[0:2])
+            end_minute = int(activity.end_time[3:5])
+
+            if start_hour < 0 or start_hour > 23 or start_minute < 0 or start_minute > 59:
+                ok = False
+            if end_hour < 0 or end_hour > 23 or end_minute < 0 or end_minute > 59:
+                ok = False
+
+            start = start_hour * 60 + start_minute
+            end = end_hour * 60 + end_minute
+            if start < 8 * 60 + 10 or start > 20 * 60:
+                ok = False
+            if end < 8 * 60 + 10 or end > 20 * 60:
+                ok = False
+            if start >= end:
+                ok = False
+    except:
+        ok = False
+    if not ok:
+        errors.append(f"活動時間不合法：{activity.start_time}～{activity.end_time}")
+
+    if type(activity.people_limit) != int or activity.people_limit < 1:
+        errors.append(f"預計人數必須至少為 1：{activity.people_limit}")
+
+    types = ["講座", "社團", "讀書會", "比賽", "其他"]
+    if activity.activity_type not in types:
+        errors.append(f"活動類型不合法：{activity.activity_type}")
+
+    if activity.classroom not in db["classrooms"]:
+        errors.append(f"找不到教室：{activity.classroom}")
+
+    return errors
