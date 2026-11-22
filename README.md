@@ -4,13 +4,16 @@
 
 ## 執行方式
 
-需要 Python 3.10 以上；測試用 pytest（`pip install pytest`）。在專案最上層資料夾執行：
+需要 Python 3.10 以上。在專案最上層資料夾安裝測試套件並執行：
 
 ```
+python -m pip install -r requirements-dev.txt
 python main.py                              # 執行程式
-python -m pytest                            # 執行全部測試
-python -m pytest tests/test_time_rules.py   # 只測一個模組
+python -m pytest                            # 執行全部測試並產生 test-report.html
+python -m pytest tests/test_time_rules.py   # 只測一個模組，也會更新 HTML 報告
 ```
+
+測試完成後，用瀏覽器開啟專案根目錄的 `test-report.html` 查看詳細結果。
 
 ## 檔案地圖
 
