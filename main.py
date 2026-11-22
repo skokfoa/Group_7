@@ -3,11 +3,12 @@
 輸入只盡量轉成數字，對錯一律交給 data_checks 判斷。
 """
 
-from data_formats import Classroom, Course, Student
+from data_formats import Classroom, Course, Student , Activity
 import enroll
 import manage_classrooms
 import manage_courses
 import manage_students
+import manage_activities
 import save_load
 import time_rules
 import timetable
@@ -146,6 +147,19 @@ def input_classroom(classroom_id: str) -> Classroom:
         input("大樓："),
     )
 
+def input_activity(activity_id: str) -> Activity:
+    """依序詢問活動欄位，組成 Activity。"""
+    return Activity(
+        activity_id,
+        input("活動名稱："),
+        input("日期(EX: 2026-11-05 )："),
+        input("開始時間(EX: 08:05 )："),
+        input("結束時間(EX: 10:05 )："),
+        to_int(input("人數上限：")),
+        input("活動類型："),
+        [e for e in input("設備（用逗號隔開）：").split(",") if e],
+        input("教室代號："),
+    )
 
 def course_menu(db: dict) -> None:
     """課程管理選單。對應需求：F1-01、F1-06、F1-09"""
@@ -228,7 +242,71 @@ def enrollment_menu(db: dict) -> None:
             print(f"{course.course_id} {course.course_name} {course.credit} 學分")
         print(f"共 {len(courses)} 門課")
 
-
+def activity_menu(db: dict) -> None:
+    """活動管理選單。對應需求："""
+    print("1 新增  2 修改  3 取消課程  4 查一門  5 列出活動  ")
+    choice = input("請選擇：")
+    if choice in ("1", "2", "3", "4"):
+        activity_id = input("活動代號：")
+    if choice == "1":
+        report(db, run(manage_activities.add_activity, db, input_activity(activity_id)))
+    elif choice == "2":
+        report(db, run(manage_activities.update_activity, db, input_activity(activity_id)))
+    elif choice == "3":
+        report(db, run(manage_activities.cancel_activity, db, activity_id))
+    elif choice == "4":
+        acts = manage_activities.get_activity(db,activity_id)
+        if acts is None:
+            print("找不到活動")
+        else:
+            count_people = manage_activities.count_signups(db, acts.activity_id)
+            print(f"\n活動代碼:{acts.activity_id}\n活動名稱:{acts.activity_name}\n日期:{acts.date}\n時間:{acts.start_time} ~ {acts.end_time}\n人數限制:{acts.people_limit}人\n已報名人數:{count_people}\n活動類型:{acts.activity_type}\n地點:{acts.classroom}")
+    elif choice == "5":
+        temp = manage_activities.list_activities(db)
+        if len(temp) == 0:
+            print("目前沒有活動")
+        else:
+            for acts in temp:
+                count_people = manage_activities.count_signups(db,acts.activity_id)
+                print(f"\n活動代碼:{acts.activity_id}\n活動名稱:{acts.activity_name}\n日期:{acts.date}\n時間:{acts.start_time} ~ {acts.end_time}\n人數限制:{acts.people_limit}人\n已報名人數:{count_people}\n活動類型:{acts.activity_type}\n地點:{acts.classroom}")
+    elif choice == "6":
+        ...
+def sign_up_menu(db: dict) -> None:
+    print("1 加選  2 退選  3 查已選課程")
+    choice = input("請選擇：")
+    if choice not in ("1", "2", "3"):
+        return
+    student_id = input("學號：")
+    
+    if choice == "1":
+        activity_id = input("活動代碼:")
+        add_and_report_activity(db,student_id,activity_id)
+    elif choice =='2':
+        activity_id = input("活動代碼:")
+        temp = manage_activities.drop_activity(db,student_id,activity_id)
+        if temp == []:
+            save_load.save_data(db,"data")
+            print("完成:已存檔")
+        else:
+            for i,e in enumerate(temp,start=1):
+                print(f"錯誤 {i} : {e}")
+    elif choice == "3":
+        temp = manage_activities.signed_up_activities(db,student_id)       
+        if len(temp) == 0:
+            print("沒有已選活動")
+        else:
+            for acts in temp:
+                count_people = manage_activities.count_signups(db,acts.activity_id)
+                print(f"\n活動代碼:{acts.activity_id}\n活動名稱:{acts.activity_name}\n日期:{acts.date}\n時間:{acts.start_time} ~ {acts.end_time}\n人數限制:{acts.people_limit}人\n已報名人數:{count_people}\n活動類型:{acts.activity_type}\n地點:{acts.classroom}")
+    ...
+def add_and_report_activity(db: dict, student_id: str, activity_id: str) -> None:
+    temp = manage_activities.sign_up(db,student_id,activity_id)
+    if temp == []:
+        save_load.save_data(db,"data")
+        print("完成:已存檔")
+    else:
+        for i,e in enumerate(temp,start=1):
+            print(f"錯誤 {i} : {e}")
 def add_and_report(db: dict, student_id: str, course_id: str) -> None:
     """加選一門課，照作業 F2 的範例格式印出結果；成功就存檔。
 
@@ -328,13 +406,14 @@ def timetable_menu(db: dict) -> None:
             print(f"空堂數：{stats['gaps']}")
 
 
+
 def main() -> None:
     """載入資料後顯示主選單，直到使用者選擇離開。"""
     db = save_load.load_data(DATA_DIR)
-    menus = {"1": course_menu, "2": student_menu, "3": classroom_menu,
-             "4": enrollment_menu, "5": timetable_menu}
+    menus = {"1": course_menu, "2": student_menu, "3": classroom_menu, "4":activity_menu,
+             "5": enrollment_menu, "6": timetable_menu, "7": sign_up_menu}
     while True:
-        print("\n1 課程管理  2 學生管理  3 教室管理  4 選課  5 個人課表  0 離開")
+        print("\n1 課程管理  2 學生管理  3 教室管理  4 活動管理 5 選課  6 個人課表 7 選活動  0 離開")
         choice = input("請選擇：")
         if choice == "0":
             break

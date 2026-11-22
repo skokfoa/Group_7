@@ -1,0 +1,28 @@
+{
+    "activities": {
+        "A002": {
+            "activity_name": "程式設計讀書會",
+            "date": "2026-11-04",
+            "start_time": "08:30",
+            "end_time": "10:00",
+            "people_limit": 20,
+            "activity_type": "讀書會",
+            "equipment": [
+                "投影機"
+            ],
+            "classroom": "EN201"
+        },
+        "A003": {
+            "activity_name": "卜程式設計讀書會",
+            "date": "2026-11-04",
+            "start_time": "11:30",
+            "end_time": "13:00",
+            "people_limit": 20,
+            "activity_type": "讀書會",
+            "equipment": [
+                "投影機"
+            ],
+            "classroom": "EN201"
+        }
+    }
+}

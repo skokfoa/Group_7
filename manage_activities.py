@@ -368,3 +368,26 @@ def sign_up(db: dict, student_id: str, activity_id: str) -> list[str]:
     db["signups"].append(Signup(student_id, activity_id))
     return []
     raise NotImplementedError
+
+def drop_activity(db: dict, student_id: str, activity_id: str) -> list[str]:
+    """退選一門課。
+
+    參數：
+        db：全部資料
+        student_id：學號
+        course_id：課程代號
+
+    回傳：
+        錯誤清單，退選成功時是 []。錯誤文字："沒有這筆選課紀錄：{學號} {課程代號}"
+
+    例子（S001 選了 MA101）：
+        drop_enrollment(db, "S001", "MA101") → []
+        drop_enrollment(db, "S001", "CS999") → ["沒有這筆選課紀錄：S001 CS999"]
+
+    對應需求：F2
+    """
+    for signup in db["signups"]:
+        if signup.student_id == student_id and signup.activity_id == activity_id:
+            db["signups"].remove(signup)
+            return []
+    return [f"沒有這筆活動紀錄：{student_id} {activity_id}"]

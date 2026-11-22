@@ -1,0 +1,12 @@
+{
+    "signups": [
+        {
+            "student_id": "S002",
+            "activity_id": "A002"
+        },
+        {
+            "student_id": "S002",
+            "activity_id": "A003"
+        }
+    ]
+}

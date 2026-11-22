@@ -65,6 +65,26 @@ def load_data(data_dir: str) -> dict:
     for enrollment_info in enrollment_data["enrollments"]:
         enrollment = data_formats.Enrollment(**enrollment_info)
         db["enrollments"].append(enrollment)
+
+    activity_path = Path(data_dir) / "activities.json"
+    with open(activity_path, encoding="utf-8") as file:
+        activity_data = json.load(file)
+
+    for activity_id, activity_info in activity_data["activities"].items():
+        activity = data_formats.Activity(
+            activity_id=activity_id,
+            **activity_info
+        )
+        db["activities"][activity_id] = activity
+#--------------------------------------------------------------------------------
+    signup_path = Path(data_dir) / "signups.json"
+    with open(signup_path, encoding="utf-8") as file:
+        signup_data = json.load(file)
+
+    for signup_info in signup_data["signups"]:
+        signup = data_formats.Signup(**signup_info)
+        db["signups"].append(signup)
+
     return db
 
 
@@ -108,11 +128,23 @@ def save_data(db: dict, data_dir: str) -> None:
     for enrollment in db["enrollments"]:
         enrollments.append(asdict(enrollment))
 
+    activities = {}
+    for activity_id, activity in db["activities"].items():
+        activity_info = asdict(activity)
+        activity_info.pop("activity_id")
+        activities[activity_id] = activity_info
+
+    signups = []
+    for signup in db["signups"]:
+        signups.append(asdict(signup))
+
     files = {
         "courses.json": {"courses": courses},
         "students.json": {"students": students},
         "classrooms.json": {"classrooms": classrooms},
-        "enrollments.json": {"enrollments": enrollments}
+        "enrollments.json": {"enrollments": enrollments},
+        "activities.json": {"activities": activities},
+        "signups.json": {"signups": signups}
     }
 
     for filename, content in files.items():
